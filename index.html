@@ -5,121 +5,80 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>سوق الشعلة</title>
   <style>
-    /* إعادة ضبط أساسية لضمان التطابق على كافة المتصفحات */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    }
-
-    body {
-      background-color: #f8f9fa;
-      color: #333;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-
-    /* الهيدر العلوي */
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+    body { background-color: #f8f9fa; color: #333; min-height: 100vh; display: flex; flex-direction: column; }
+    
     .header {
-      background-color: #056839;
-      color: #ffffff;
-      padding: 20px 15px;
-      text-align: center;
-      border-bottom-left-radius: 20px;
-      border-bottom-right-radius: 20px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      background-color: #056839; color: #fff; padding: 20px 15px; text-align: center;
+      border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;
     }
+    .header h1 { font-size: 24px; font-weight: bold; }
+    .header p { font-size: 14px; margin-top: 6px; opacity: 0.9; }
 
-    .header h1 {
-      font-size: 24px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .header p {
-      font-size: 14px;
-      margin-top: 6px;
-      opacity: 0.9;
-    }
-
-    /* حاوية شاشة التحميل */
     .loading-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      text-align: center;
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 20px; text-align: center;
     }
-
-    /* المؤشر المتحرك (Spinner) ليعمل حتى لو لم تكتمل عناصر جافا سكريبت */
     .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid #e0e0e0;
-      border-top: 4px solid #056839;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-bottom: 15px;
+      width: 40px; height: 40px; border: 4px solid #e0e0e0; border-top: 4px solid #056839;
+      border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px;
     }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .loading-title {
-      font-size: 22px;
-      font-weight: bold;
-      color: #1a1a1a;
-      margin-bottom: 12px;
-    }
-
-    .loading-subtext {
-      font-size: 14px;
-      color: #666;
-      max-width: 300px;
-      line-height: 1.6;
-    }
-
-    /* تحسين إمكانية الوصول في حالة إيقاف JavaScript */
-    noscript .spinner {
-      display: none;
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    
+    .btn-retry {
+      margin-top: 15px; padding: 10px 20px; background-color: #056839; color: white;
+      border: none; border-radius: 8px; font-size: 14px; cursor: pointer; display: none;
     }
   </style>
 </head>
 <body>
 
-  <!-- الهيدر العلوي -->
   <header class="header">
     <h1>سوق الشعلة 🔥</h1>
     <p>— خضراوات طازجة لحد باب البيت —</p>
   </header>
 
-  <!-- شاشة التحميل -->
-  <main class="loading-container" id="loadingScreen">
-    <div class="spinner"></div>
-    <div class="loading-title">جارٍ التحميل...</div>
-    <p class="loading-subtext">
-      إذا بقيت هذه الرسالة، يرجى الترفيش أو تفعيل JavaScript.
-    </p>
+  <main class="loading-container" id="loadingArea">
+    <div class="spinner" id="spinner"></div>
+    <div id="statusTitle" style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">جارٍ التحميل...</div>
+    <p id="statusMessage" style="font-size: 14px; color: #666;">إذا بقيت هذه الرسالة، يرجى الترفيش أو تفعيل JavaScript.</p>
+    <button class="btn-retry" id="retryBtn" onclick="location.reload()">إعادة المحاولة</button>
   </main>
 
-  <!-- كود التفاعل لجميع المتصفحات -->
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      // الكود الذي يتم تنفيذه بعد تحميل العناصر الأساسية
-      // يمكنك إخفاء شاشة التحميل هنا عندما تكتمل بياناتك:
-      // document.getElementById('loadingScreen').style.display = 'none';
-    });
-  </script>
+    // حماية ضد التعليق: إذا استغرق التحميل أكثر من 6 ثوانٍ يظهر زر إعادة المحاولة وتنبيه للمستخدم
+    const timeout = setTimeout(() => {
+      document.getElementById('spinner').style.display = 'none';
+      document.getElementById('statusTitle').innerText = 'تعذر تحميل البيانات';
+      document.getElementById('statusMessage').innerText = 'حدث خطأ أثناء الاتصال بالخادم، يرجى التأكد من الإنترنت أو المحاولة لاحقاً.';
+      document.getElementById('retryBtn').style.display = 'inline-block';
+    }, 6000);
 
+    window.addEventListener('load', function() {
+      // قم باستدعاء دالة جلب البيانات الخاصة بك هنا
+      loadAppData();
+    });
+
+    function loadAppData() {
+      try {
+        // مثال: جلب البيانات بواسطة fetch
+        /*
+        fetch('./data.json')
+          .then(response => {
+            if (!response.ok) throw new Error('فشل جلب الملف');
+            return response.json();
+          })
+          .then(data => {
+            clearTimeout(timeout); // إلغاء التوقيت عند النجاح
+            // هنا قم بإخفاء شاشة التحميل وإظهار محتوى التطبيق
+            document.getElementById('loadingArea').style.display = 'none';
+          })
+          .catch(error => handleFetchError(error));
+        */
+      } catch (err) {
+        console.error("Critical JS Error:", err);
+      }
+    }
+  </script>
 </body>
 </html>
-
